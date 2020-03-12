@@ -16,3 +16,7 @@ while True:
             kogo_list.append(t)
             kogo_list.remove(i)
         print(d)
+    if chat_1[0] = "!добавить":
+        list_name.append(chat_1[1])
+    if chat_1[0] = "!удалить":
+        list_name.remove(chat_1[1])
