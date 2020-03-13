@@ -1,16 +1,12 @@
 import random
 import data_name
 
-def selection(name, list_name, busy_list, n):
+def selection(name, list_name, busy_list):
     result_name = random.choice(list_name)
     while result_name == name or result_name in busy_list:
         result_name = random.choice(list_name)
-        if result_name == name:
-            n += 1
-        if n >= 15:
-            break
     busy_list.append(result_name)
-    return result_name, busy_list, n
+    return result_name, busy_list
 
 list_name = []
 busy_list = []                                                   # Список тех, у кого уже смотрят код
@@ -32,20 +28,25 @@ while True:
 
     if chat[0] == "!рандом":
         for i in can_review_list:
-            d[i], busy_list, n = selection(i, list_name, busy_list)
-            if n >= 15:
-                y = random.choice(can_review_list)
-                d[i], d[y] = d[y], d[i]
+            if not(i in busy_list) and len(list_name) - len(busy_list) == 1:
+                p = random.randint(0, len(can_review_list) - 2)
+                d[i], d[str(list(d)[p])] = d[list(d)[p]], i
+                busy_list.append(i)
+            else:
+                d[i], busy_list = selection(i, list_name, busy_list)
+
         while len(busy_list) != len(list_name):
-            a = random.choice(can_review_list)
-            b, busy_list = selection(a, list_name, busy_list, 0)
-            if n >= 15:
-                y = random.choice(can_review_list)
-                d[i], d[y] = d[y], d[i]
-            d[a] = (d[a], b)
+            i = random.choice(can_review_list)
+            if not(i in busy_list) and len(list_name) - len(busy_list) == 1:
+                p = random.randint(0, len(can_review_list) - 2)
+                d[i], d[str(list(d)[p])] = d[list(d)[p]], i
+                busy_list.append(i)
+            else:
+                b, busy_list = selection(i, list_name, busy_list)
+                d[i] = (d[i], b)
+
         for a, b in d.items():
             print(a, "→", b)
-
         busy_list = []
         d = {}
 
