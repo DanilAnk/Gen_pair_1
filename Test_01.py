@@ -16,18 +16,24 @@ def sel(name, can_review_list, d):
         result_name = random.choice(can_review_list)
     return result_name
 
-list_name = []
+# Обновление базы имён
+def update_data(dict_name):
+    list_name = []
+    can_review_list = []
+    for i in list(dict_name.keys()):
+        if dict_name[i]["status"] == 1:
+            list_name.append(i)
+            if dict_name[i]["review"] == 1:
+                can_review_list.append(i)
+    return list_name, can_review_list
+
+dict_name = data_name.dict_name
+list_name, can_review_list = update_data(dict_name)
 reviewed_list = []
-can_review_list = []
 
 print("Команды:")
-print("!добавить(name), !удалить(name), !список, !рандом")
-
-for i in list(data_name.dict_name.keys()):
-    if data_name.dict_name[i]["status"] == 1:
-        list_name.append(i)
-        if data_name.dict_name[i]["review"] == 1:
-            can_review_list.append(i)
+print("!добавить(name)(status)(review), !удалить(name), !список, !рандом")
+print("Пример: ", "!добавить Данил 1 0")
 
 while True:
     chat = input().split(' ')
@@ -60,12 +66,33 @@ while True:
         if chat[1] in list_name:
             print("Уже добавлен")
         else:
-            list_name.append(chat[1])
-            print(list_name)
+            if len(chat) >= 3:
+                status = int(chat[2])
+                review = int(chat[3])
+            else:
+                status = 1
+                review = 1
+            dict_name[chat[1]] = {"status" : status, "review" : review}
+            list_name, can_review_list = update_data(dict_name)
+            for a, b in dict_name.items():
+                print(a, "→", b)
     elif chat[0] == "!удалить":
-        list_name.remove(chat[1])
-        print(list_name)
+        if chat[1] in list_name:
+            del dict_name[chat[1]]
+            list_name, can_review_list = update_data(dict_name)
+            for a, b in dict_name.items():
+                print(a, "→", b)
+        else:
+            print("Не правильно набрано имя")
+    elif chat[0] == "!изменить":
+        dict_name[chat[1]][chat[2]] = int(chat[3])
+        list_name, can_review_list = update_data(dict_name)
+        for a, b in dict_name.items():
+            print(a, "→", b)
     elif chat[0] == "!список":
-        print(list_name)
+        print("list_name =", list_name)
+        print("can_review_list =", can_review_list)
+        for a, b in dict_name.items():
+            print(a, "→", b)
     else:
         print("Неправильно")
