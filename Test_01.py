@@ -1,5 +1,6 @@
 import random
 import data_name
+import json
 
 # Генерация имени для того, кто делает code-review
 def selection(name, list_name, reviewed_list):
@@ -10,16 +11,19 @@ def selection(name, list_name, reviewed_list):
     return result_name, reviewed_list
 
 # Выбор человека с кем можно обменяться
-def sel(name, can_review_list, d):
+def sel(name, can_review_list, d, lust_gen_pair):
     result_name = random.choice(can_review_list)
     while result_name == name or result_name in d[name]:
         result_name = random.choice(can_review_list)
     return result_name
 
 # Обновление базы имён
-def update_data(dict_name):
+def update_name(dict_name):
     list_name = []
     can_review_list = []
+    my_file = open('name.json', "w")
+    json.dump(dict_name, my_file,indent=2)
+    my_file.close()
     for i in list(dict_name.keys()):
         if dict_name[i]["status"] == 1:
             list_name.append(i)
@@ -27,8 +31,15 @@ def update_data(dict_name):
                 can_review_list.append(i)
     return list_name, can_review_list
 
-dict_name = data_name.dict_name
-list_name, can_review_list = update_data(dict_name)
+def update_lust_gen_pair(d):
+    my_file = open('lust_gen_pair.json', "w")
+    json.dump(d, my_file,indent=2)
+    my_file.close()
+    return d
+
+my_file = open('name.json', "r")
+dict_name = json.load(my_file)
+list_name, can_review_list = update_name(dict_name)
 reviewed_list = []
 
 print("Команды:")
@@ -46,7 +57,7 @@ while True:
 
         while len(list_name) != len(reviewed_list):
             i = can_review_list[r]
-            if not(i in reviewed_list) and len(list_name) - len(reviewed_list) == 1:
+            if len(list_name) - len(reviewed_list) == 1 and  not(i in reviewed_list):
                 p = sel(i, can_review_list, d)
                 d[i] += tuple(map(str, i.split()))
                 d[i], d[p] = d[p], d[i]
@@ -73,20 +84,20 @@ while True:
                 status = 1
                 review = 1
             dict_name[chat[1]] = {"status" : status, "review" : review}
-            list_name, can_review_list = update_data(dict_name)
+            list_name, can_review_list = update_name(dict_name)
             for a, b in dict_name.items():
                 print(a, "→", b)
     elif chat[0] == "!удалить":
         if chat[1] in list_name:
             del dict_name[chat[1]]
-            list_name, can_review_list = update_data(dict_name)
+            list_name, can_review_list = update_name(dict_name)
             for a, b in dict_name.items():
                 print(a, "→", b)
         else:
             print("Не правильно набрано имя")
     elif chat[0] == "!изменить":
         dict_name[chat[1]][chat[2]] = int(chat[3])
-        list_name, can_review_list = update_data(dict_name)
+        list_name, can_review_list = update_name(dict_name)
         for a, b in dict_name.items():
             print(a, "→", b)
     elif chat[0] == "!список":
